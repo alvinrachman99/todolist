@@ -2,7 +2,11 @@ module github.com/alvinrachman99/todolist
 
 go 1.23.3
 
-require github.com/gofiber/fiber/v2 v2.52.6
+require (
+	github.com/gofiber/fiber/v2 v2.52.6
+	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.10.9
+)
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
