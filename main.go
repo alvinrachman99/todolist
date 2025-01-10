@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"github.com/alvinrachman99/todolist/config"
 	"github.com/alvinrachman99/todolist/database"
@@ -59,6 +60,10 @@ func main() {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
 		}
 
+		if strings.TrimSpace(newTodo.Task) == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Field task is required"})
+		}
+
 		_, err := db.Exec(
 			"INSERT INTO todos (task, is_completed) VALUES ($1, $2)",
 			newTodo.Task, newTodo.Is_completed,
@@ -75,6 +80,10 @@ func main() {
 
 		if err := c.BodyParser(&newTodo); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Input"})
+		}
+
+		if strings.TrimSpace(newTodo.Task) == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Field task is required"})
 		}
 
 		id := c.Params("id")
