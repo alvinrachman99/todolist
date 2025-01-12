@@ -7,9 +7,11 @@ import (
 	"github.com/alvinrachman99/todolist/config"
 	"github.com/alvinrachman99/todolist/database"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type Todo struct {
+	Id           int    `json:"id"`
 	Task         string `json:"task"`
 	Is_completed int16  `json:"is_completed"` // 0:todo, 1:doing, 2:done
 }
@@ -21,8 +23,13 @@ func main() {
 
 	app := fiber.New()
 
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173/",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	app.Get("/api/todos", func(c *fiber.Ctx) error {
-		rows, err := db.Query("SELECT task, is_completed FROM todos")
+		rows, err := db.Query("SELECT id, task, is_completed FROM todos")
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to select todos"})
 		}
@@ -31,7 +38,7 @@ func main() {
 		var todos []Todo
 		for rows.Next() {
 			var todo Todo
-			if err := rows.Scan(&todo.Task, &todo.Is_completed); err != nil {
+			if err := rows.Scan(&todo.Id, &todo.Task, &todo.Is_completed); err != nil {
 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed scan todos"})
 			}
 
@@ -44,10 +51,10 @@ func main() {
 	app.Get("/api/todos/:id", func(c *fiber.Ctx) error {
 		id := c.Params("id")
 
-		row := db.QueryRow("SELECT task, is_completed FROM todos WHERE id = $1", id)
+		row := db.QueryRow("SELECT id, task, is_completed FROM todos WHERE id = $1", id)
 
 		var todo Todo
-		if err := row.Scan(&todo.Task, &todo.Is_completed); err != nil {
+		if err := row.Scan(&todo.Id, &todo.Task, &todo.Is_completed); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed select todo by id"})
 		}
 
